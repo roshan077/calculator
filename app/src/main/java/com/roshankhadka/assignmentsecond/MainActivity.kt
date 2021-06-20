@@ -136,24 +136,16 @@ class MainActivity : AppCompatActivity() {
 
     fun evaluate(str: String): Double {
         return object : Any() {
-            // on below line we ar creating variable
-            // for tracking the position and char pos.
             var pos = -1
             var ch = 0
 
-            // below method is for moving to next character.
+
             fun nextChar() {
-                // on below line we are incrementing our position
-                // and moving it to next position.
                 ch = if (++pos < str.length) str[pos].code else -1
             }
 
-            // this method is use to check the extra space
-            // present int the expression and removing it.
             fun eat(charToEat: Int): Boolean {
                 while (ch == ' '.toInt()) nextChar()
-                // on below line we are checking the char pos
-                // if both is equal then we are returning it to true.
                 if (ch == charToEat) {
                     nextChar()
                     return true
@@ -169,63 +161,47 @@ class MainActivity : AppCompatActivity() {
                 return x
             }
 
-            // in this method we will only perform addition and
-            // subtraction operation on the expression.
             fun parseExpression(): Double {
                 var x = parseTerm()
                 while (true) {
-                    if (eat('+'.toInt())) x += parseTerm() // addition
-                    else if (eat('-'.toInt())) x -= parseTerm() // subtraction
+                    if (eat('+'.toInt())) x += parseTerm()
+                    else if (eat('-'.toInt())) x -= parseTerm()
                     else return x
                 }
             }
 
-            // in below method we will perform
-            // only multiplication and division operation.
             fun parseTerm(): Double {
                 var x = parseFactor()
                 while (true) {
-                    if (eat('*'.toInt())) x *= parseFactor() // multiplication
-                    else if (eat('/'.toInt())) x /= parseFactor() // division
+                    if (eat('*'.toInt())) x *= parseFactor()
+                    else if (eat('/'.toInt())) x /= parseFactor()
                     else return x
                 }
             }
 
-            // below method is use to parse the factor
             fun parseFactor(): Double {
-                //on below line we are checking for addition
-                // and subtraction and performing unary operations.
-                if (eat('+'.toInt())) return parseFactor() // unary plus
-                if (eat('-'.toInt())) return -parseFactor() // unary minus
-                // creating a double variable for ans.
+
+                if (eat('+'.toInt())) return parseFactor()
+                if (eat('-'.toInt())) return -parseFactor()
+
                 var x: Double
-                // on below line we are creating
-                // a variable for position.
                 val startPos = pos
-                // on below line we are checking
-                // for opening and closing parenthesis.
-                if (eat('('.toInt())) { // parentheses
+                if (eat('('.toInt())) {
                     x = parseExpression()
                     eat(')'.toInt())
                 } else if (ch >= '0'.toInt() && ch <= '9'.toInt() || ch == '.'.toInt()) {
-                    // numbers
                     while (ch >= '0'.toInt() && ch <= '9'.toInt() || ch == '.'.toInt()) nextChar()
-                    // on below line we are getting sub string from our string using start and pos.
                     x = str.substring(startPos, pos).toDouble()
                 } else if (ch >= 'a'.toInt() && ch <= 'z'.toInt()) {
-                    // on below function we are checking for the operator in our expression.
                     while (ch >= 'a'.toInt() && ch <= 'z'.toInt()) nextChar()
                     val func = str.substring(startPos, pos)
-                    // calling a method to parse our factor.
                     x = parseFactor()
-                    // on below line we are checking for square root.
+
 
                 } else {
-                    // if the condition not satisfy then we are returning the exception
                     throw RuntimeException("Unexpected: " + ch.toChar())
                 }
-                // on below line we are calculating the power of the expression.
-                if (eat('^'.toInt())) x = Math.pow(x, parseFactor()) // exponentiation
+                if (eat('^'.toInt())) x = Math.pow(x, parseFactor())
                 return x
             }
         }.parse()
